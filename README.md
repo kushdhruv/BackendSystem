@@ -100,11 +100,3 @@ This interactive documentation allows you to explore all endpoints, view require
 - `GET /api/v1/tasks`
 - `POST /api/v1/tasks`
 
-## Demonstration Video
-*(Insert link to the 5-minute Loom/YouTube video here)*
-The video demonstrates:
-- Setup process
-- Registration & login flow
-- CRUD operations for an authenticated user
-- Failed attempt to access another user's tasks
-- Data validation and error handling
