@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const { User } = require('../models/User');
 
 /**
  * Generate JWT token
@@ -27,26 +27,24 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Create user (role defaults to 'user' unless admin is specified)
+    // Create user
     const user = await User.create({
       name,
       email,
       password,
-      role: role === 'admin' ? 'admin' : 'user',
     });
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully.',
       data: {
         user: {
-          _id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role,
         },
         token,
       },
@@ -65,7 +63,7 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
 
     // Find user and include password field
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.scope('withPassword').findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -83,17 +81,16 @@ exports.login = async (req, res, next) => {
     }
 
     // Generate token
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
 
     res.status(200).json({
       success: true,
       message: 'Login successful.',
       data: {
         user: {
-          _id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role,
         },
         token,
       },
@@ -109,7 +106,7 @@ exports.login = async (req, res, next) => {
  */
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     res.status(200).json({
       success: true,
       data: { user },

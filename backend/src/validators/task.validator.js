@@ -13,10 +13,7 @@ const createTaskValidator = [
     .escape(),
   body('status')
     .optional()
-    .isIn(['todo', 'in-progress', 'done']).withMessage('Status must be: todo, in-progress, or done'),
-  body('priority')
-    .optional()
-    .isIn(['low', 'medium', 'high']).withMessage('Priority must be: low, medium, or high'),
+    .isIn(['pending', 'completed']).withMessage('Status must be: pending or completed'),
   body('dueDate')
     .optional()
     .isISO8601().withMessage('Due date must be a valid date'),
@@ -37,10 +34,7 @@ const updateTaskValidator = [
     .escape(),
   body('status')
     .optional()
-    .isIn(['todo', 'in-progress', 'done']).withMessage('Status must be: todo, in-progress, or done'),
-  body('priority')
-    .optional()
-    .isIn(['low', 'medium', 'high']).withMessage('Priority must be: low, medium, or high'),
+    .isIn(['pending', 'completed']).withMessage('Status must be: pending or completed'),
   body('dueDate')
     .optional()
     .isISO8601().withMessage('Due date must be a valid date'),
@@ -54,10 +48,7 @@ const taskIdValidator = [
 const listTasksValidator = [
   query('status')
     .optional()
-    .isIn(['todo', 'in-progress', 'done']).withMessage('Invalid status filter'),
-  query('priority')
-    .optional()
-    .isIn(['low', 'medium', 'high']).withMessage('Invalid priority filter'),
+    .isIn(['pending', 'completed']).withMessage('Invalid status filter'),
   query('page')
     .optional()
     .isInt({ min: 1 }).withMessage('Page must be a positive integer'),

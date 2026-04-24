@@ -13,7 +13,6 @@ const errorHandler = require('./middleware/errorHandler');
 // Route imports
 const authRoutes = require('./routes/auth.routes');
 const taskRoutes = require('./routes/task.routes');
-const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -49,13 +48,12 @@ if (process.env.NODE_ENV === 'development') {
 // ─── API Documentation ─────────────────────────────────────────
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'PrimeIntern API Docs',
+  customSiteTitle: 'Task Management API Docs',
 }));
 
 // ─── API Routes (v1) ───────────────────────────────────────────
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tasks', taskRoutes);
-app.use('/api/v1/admin', adminRoutes);
 
 // ─── Health Check ───────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
@@ -71,7 +69,7 @@ app.get('/api/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'PrimeIntern Task Manager API',
+    message: 'Task Management API',
     docs: '/api-docs',
     health: '/api/health',
   });

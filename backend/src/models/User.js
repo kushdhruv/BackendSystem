@@ -1,57 +1,68 @@
-const mongoose = require('mongoose');
+const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-      minlength: [2, 'Name must be at least 2 characters'],
-      maxlength: [50, 'Name cannot exceed 50 characters'],
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email'],
-    },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // Don't include password in queries by default
-    },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
-  },
-  {
-    timestamps: true,
-    toJSON: {
-      transform(doc, ret) {
-        delete ret.password;
-        delete ret.__v;
-        return ret;
-      },
-    },
-  }
-);
-
-// Hash password before saving
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
-  const salt = await bcrypt.genSalt(12);
-  this.password = await bcrypt.hash(this.password, salt);
+const sequelize = new Sequelize(process.env.POSTGRES_URI, {
+  dialect: 'postgres',
+  logging: false,
 });
 
-// Compare entered password with hashed password
-userSchema.methods.comparePassword = async function (candidatePassword) {
+const User = sequelize.define('User', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Name is required' },
+      len: { args: [2, 50], msg: 'Name must be between 2 and 50 characters' }
+    }
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: {
+      args: true,
+      msg: 'Email address already in use!'
+    },
+    validate: {
+      notEmpty: { msg: 'Email is required' },
+      isEmail: { msg: 'Please enter a valid email' }
+    }
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Password is required' },
+      len: { args: [6, 100], msg: 'Password must be at least 6 characters' }
+    }
+  }
+}, {
+  hooks: {
+    beforeCreate: async (user) => {
+      if (user.password) {
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(12);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    }
+  },
+  defaultScope: {
+    attributes: { exclude: ['password'] }
+  },
+  scopes: {
+    withPassword: {
+      attributes: { include: ['password'] }
+    }
+  }
+});
+
+// Instance method to compare password
+User.prototype.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = { sequelize, User };

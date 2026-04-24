@@ -6,7 +6,6 @@ const {
   getTask,
   updateTask,
   deleteTask,
-  getTaskStats,
 } = require('../controllers/task.controller');
 const { protect } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -27,41 +26,13 @@ router.use(protect);
  *   description: Task CRUD operations
  */
 
-/**
- * @swagger
- * /tasks/stats:
- *   get:
- *     summary: Get task statistics
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Task statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     total:
- *                       type: number
- *                     byStatus:
- *                       type: object
- *                     byPriority:
- *                       type: object
- */
-router.get('/stats', getTaskStats);
+
 
 /**
  * @swagger
  * /tasks:
  *   get:
- *     summary: Get all tasks (own tasks for users, all for admins)
+ *     summary: Get all tasks for user
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -70,14 +41,8 @@ router.get('/stats', getTaskStats);
  *         name: status
  *         schema:
  *           type: string
- *           enum: [todo, in-progress, done]
+ *           enum: [pending, completed]
  *         description: Filter by status
- *       - in: query
- *         name: priority
- *         schema:
- *           type: string
- *           enum: [low, medium, high]
- *         description: Filter by priority
  *       - in: query
  *         name: page
  *         schema:
@@ -128,12 +93,8 @@ router.get('/stats', getTaskStats);
  *                 example: Write Swagger docs for all endpoints
  *               status:
  *                 type: string
- *                 enum: [todo, in-progress, done]
- *                 default: todo
- *               priority:
- *                 type: string
- *                 enum: [low, medium, high]
- *                 default: medium
+ *                 enum: [pending, completed]
+ *                 default: pending
  *               dueDate:
  *                 type: string
  *                 format: date
@@ -195,10 +156,7 @@ router
  *                 type: string
  *               status:
  *                 type: string
- *                 enum: [todo, in-progress, done]
- *               priority:
- *                 type: string
- *                 enum: [low, medium, high]
+ *                 enum: [pending, completed]
  *               dueDate:
  *                 type: string
  *                 format: date

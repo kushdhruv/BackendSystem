@@ -17,21 +17,15 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['todo', 'in-progress', 'done'],
-      default: 'todo',
-    },
-    priority: {
-      type: String,
-      enum: ['low', 'medium', 'high'],
-      default: 'medium',
+      enum: ['pending', 'completed'],
+      default: 'pending',
     },
     dueDate: {
       type: Date,
       default: null,
     },
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String, // String to store PostgreSQL user ID
       required: true,
     },
   },
